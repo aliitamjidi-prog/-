@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ کافه گوشه دنج - منوی سفارش</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, 'Vazirmatn', 'Iran Sans', sans-serif;
+            background: linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 50%, #d4a574 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #6b3a2a 0%, #8b4513 100%);
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(107, 58, 42, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #d4a574;
+            color: #6b3a2a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #faf6f2;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            gap: 10px;
+        }
+
+        .menu-item:hover {
+            background: #f0e6d8;
+            transform: scale(1.02);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #4a4a4a;
+            font-size: 1.1em;
+        }
+
+        .item-price {
+            color: #8b4513;
+            font-weight: bold;
+            font-size: 1.1em;
+            white-space: nowrap;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            direction: ltr;
+        }
+
+        .qty-btn {
+            background: #d4a574;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .qty-btn:hover {
+            background: #8b4513;
+            transform: scale(1.1);
+        }
+
+        .qty-display {
+            font-weight: bold;
+            min-width: 25px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        /* Collapsible Order Bar */
+        .order-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px 20px 0 0;
+            max-height: 80vh;
+        }
+
+        .order-bar.collapsed {
+            max-height: 70px;
+        }
+
+        .order-bar.expanded {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .order-bar-header {
+            padding: 15px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.3s ease;
+            direction: rtl;
+        }
+
+        .order-bar-header:hover {
+            background: #faf6f2;
+        }
+
+        .order-summary-mini {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .order-icon {
+            font-size: 1.5em;
+            position: relative;
+        }
+
+        .item-count-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            direction: ltr;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .mini-total {
+            font-weight: bold;
+            color: #8b4513;
+            font-size: 1.2em;
+            direction: rtl;
+        }
+
+        .expand-icon {
+            font-size: 1.2em;
+            transition: transform 0.4s ease;
+            color: #8b4513;
+        }
+
+        .order-bar.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .order-bar-content {
+            padding: 0 25px 25px 25px;
+            display: none;
+            direction: rtl;
+        }
+
+        .order-bar.expanded .order-bar-content {
+            display: block;
+        }
+
+        .order-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e8d5c4;
+            animation: fadeIn 0.3s ease;
+            gap: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .order-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .order-item-name {
+            font-weight: 500;
+        }
+
+        .order-item-price {
+            font-weight: bold;
+            color: #8b4513;
+            white-space: nowrap;
+        }
+
+        .remove-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .remove-btn:hover {
+            background: #ff4444;
+            transform: scale(1.05);
+        }
+
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-top: 3px solid #d4a574;
+            margin-bottom: 20px;
+        }
+
+        .total-label {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4a4a4a;
+        }
+
+        .total-amount {
+            font-size: 2em;
+            font-weight: bold;
+            color: #8b4513;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-order {
+            background: linear-gradient(135deg, #6b3a2a 0%, #8b4513 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(107, 58, 42, 0.3);
+        }
+
+        .btn-order:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(107, 58, 42, 0.4);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: slideUp 0.5s ease;
+            direction: rtl;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #6b3a2a;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .modal-content p {
+            margin-bottom: 15px;
+            color: #4a4a4a;
+            font-size: 1.1em;
+        }
+
+        .close-modal {
+            background: #d4a574;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: #8b4513;
+            transform: scale(1.05);
+        }
+
+        .special-note {
+            text-align: center;
+            color: #6b3a2a;
+            font-style: italic;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0e6d8;
+            border-radius: 10px;
+        }
+
+        .empty-order {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .category-title {
+                font-size: 1.4em;
+            }
+            
+            .total-amount {
+                font-size: 1.5em;
+            }
+            
+            .btn {
+                font-size: 1em;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☕ کافه گوشه دنج</h1>
+            <p>✨ تازه و خوشمزه — موارد مورد نظر خود را انتخاب کنید</p>
+            <div class="special-note">
+                🌟 ساعت خوشحالی: ۳ تا ۵ بعدازظهر — ۲۰٪ تخفیف برای تمام نوشیدنی‌ها!
+            </div>
+        </div>
+
+        <div class="menu-grid" id="menuGrid">
+            <!-- Menu items will be dynamically generated -->
+        </div>
+    </div>
+
+    <!-- Collapsible Order Bar -->
+    <div class="order-bar collapsed" id="orderBar">
+        <div class="order-bar-header" onclick="toggleOrderBar()">
+            <div class="order-summary-mini">
+                <div class="order-icon">
+                    🧾
+                    <span class="item-count-badge" id="itemCountBadge" style="display: none;">۰</span>
+                </div>
+                <span style="font-weight: 600; color: #4a4a4a;">سفارش شما</span>
+                <span class="mini-total" id="miniTotal">۰ ریال</span>
+            </div>
+            <span class="expand-icon">▼</span>
+        </div>
+        <div class="order-bar-content">
+            <div class="order-items" id="orderItems">
+                <p class="empty-order">هنوز موردی انتخاب نشده است. شروع به سفارش کنید!</p>
+            </div>
+            <div class="total-section">
+                <span class="total-label">مجموع:</span>
+                <span class="total-amount" id="totalAmount">۰ ریال</span>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-order" onclick="placeOrder()">
+                    📱 ثبت سفارش
+                </button>
+                <button class="btn btn-clear" onclick="clearOrder()">
+                    🗑️ حذف همه
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <h2>🎉 سفارش تأیید شد!</h2>
+            <p>از سفارش شما متشکریم!</p>
+            <div id="orderDetails"></div>
+            <p style="font-weight: bold; color: #8b4513;">زمان تقریبی انتظار: ۱۰-۱۵ دقیقه</p>
+            <p style="font-size: 0.9em;">شماره سفارش <span id="orderNumber"></span></p>
+            <button class="close-modal" onclick="closeModal()">بستن</button>
+        </div>
+    </div>
+
+    <script>
+        // Menu Data - Persian items with Rial prices
+        const menuData = {
+            "☕ نوشیدنی‌های گرم": [
+                { name: "اسپرسو", price: 850000 },
+                { name: "اسپرسو دبل", price: 1200000 },
+                { name: "کاپوچینو", price: 1100000 },
+                { name: "لاته", price: 1150000 },
+                { name: "موکا", price: 1300000 },
+                { name: "شکلات داغ", price: 950000 },
+                { name: "چای لاته", price: 1100000 },
+                { name: "قهوه ترک", price: 900000 },
+                { name: "چای ماسالا", price: 1050000 },
+                { name: "آمریکانو", price: 950000 }
+            ],
+            "🧊 نوشیدنی‌های سرد": [
+                { name: "قهوه سرد", price: 1000000 },
+                { name: "لاته سرد", price: 1200000 },
+                { name: "فراپوچینو", price: 1500000 },
+                { name: "اسموتی توت‌فرنگی", price: 1350000 },
+                { name: "اسموتی انبه", price: 1400000 },
+                { name: "لیموناد", price: 850000 },
+                { name: "چای سرد", price: 750000 },
+                { name: "موهیتو", price: 1100000 },
+                { name: "میلک شیک", price: 1400000 },
+                { name: "شربت آلبالو", price: 800000 }
+            ],
+            "🥐 شیرینی و تنقلات": [
+                { name: "کروسان ساده", price: 700000 },
+                { name: "کروسان شکلاتی", price: 850000 },
+                { name: "مافین بلوبری", price: 800000 },
+                { name: "کوکی شکلاتی", price: 500000 },
+                { name: "شیرینی دانمارکی", price: 750000 },
+                { name: "رول دارچین", price: 900000 },
+                { name: "کیک موز", price: 750000 },
+                { name: "چیزکیک", price: 1200000 },
+                { name: "براونی", price: 850000 },
+                { name: "کیک هویج", price: 800000 }
+            ],
+            "🥪 ساندویچ و غذا": [
+                { name: "ساندویچ کلاب", price: 2100000 },
+                { name: "آووکادو تست", price: 1850000 },
+                { name: "رپ مرغ", price: 2200000 },
+                { name: "سالاد سزار", price: 1950000 },
+                { name: "سوپ روز", price: 1350000 },
+                { name: "کیش لورن", price: 1750000 },
+                { name: "پنینی مرغ", price: 2100000 },
+                { name: "برگر مخصوص", price: 2500000 },
+                { name: "پاستا آلفردو", price: 2000000 },
+                { name: "املت", price: 1500000 }
+            ],
+            "🍰 دسرها": [
+                { name: "تیرامیسو", price: 1600000 },
+                { name: "پاناکوتا", price: 1350000 },
+                { name: "باقلوا", price: 1100000 },
+                { name: "کرم بروله", price: 1500000 },
+                { name: "موس شکلات", price: 1250000 },
+                { name: "دسر روز", price: 1350000 },
+                { name: "بستنی سنتی", price: 900000 },
+                { name: "ژله تزئینی", price: 850000 }
+            ]
+        };
+
+        // Order state
+        let order = {};
+
+        // Format price to Rial with commas
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " ریال";
+        }
+
+        // Toggle order bar
+        function toggleOrderBar() {
+            const orderBar = document.getElementById('orderBar');
+            orderBar.classList.toggle('collapsed');
+            orderBar.classList.toggle('expanded');
+        }
+
+        // Render Menu
+        function renderMenu() {
+            const menuGrid = document.getElementById('menuGrid');
+            menuGrid.innerHTML = '';
+
+            for (const [category, items] of Object.entries(menuData)) {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+
+                let categoryHTML = `<h2 class="category-title">${category}</h2>`;
+
+                items.forEach((item, index) => {
+                    // Create a unique ID for each item
+                    const itemId = 'item-' + index + '-' + item.name.replace(/[\s]/g, '-');
+                    
+                    categoryHTML += `
+                        <div class="menu-item">
+                            <div class="item-info">
+                                <div class="item-name">${item.name}</div>
+                            </div>
+                            <div class="item-price">${formatPrice(item.price)}</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="decreaseQuantity('${itemId}', '${item.name.replace(/'/g, "\\'")}', ${item.price})">-</button>
+                                <span class="qty-display" id="qty-${itemId}">۰</span>
+                                <button class="qty-btn" onclick="increaseQuantity('${itemId}', '${item.name.replace(/'/g, "\\'")}', ${item.price})">+</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                categoryCard.innerHTML = categoryHTML;
+                menuGrid.appendChild(categoryCard);
+            }
+        }
+
+        // Update order display
+        function updateOrderDisplay() {
+            const orderItems = document.getElementById('orderItems');
+            const totalAmount = document.getElementById('totalAmount');
+            const miniTotal = document.getElementById('miniTotal');
+            const itemCountBadge = document.getElementById('itemCountBadge');
+            let total = 0;
+            let totalItems = 0;
+
+            if (Object.keys(order).length === 0) {
+                orderItems.innerHTML = '<p class="empty-order">هنوز موردی انتخاب نشده است. شروع به سفارش کنید!</p>';
+                totalAmount.textContent = '۰ ریال';
+                miniTotal.textContent = '۰ ریال';
+                itemCountBadge.style.display = 'none';
+                return;
+            }
+
+            let orderHTML = '';
+            for (const [itemId, item] of Object.entries(order)) {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                totalItems += item.quantity;
+                orderHTML += `
+                    <div class="order-item">
+                        <div class="order-item-left">
+                            <span class="order-item-name">${item.name} × ${item.quantity}</span>
+                            <span class="order-item-price">${formatPrice(itemTotal)}</span>
+                        </div>
+                        <button class="remove-btn" onclick="removeItem('${itemId}')">✕</button>
+                    </div>
+                `;
+            }
+
+            orderItems.innerHTML = orderHTML;
+            totalAmount.textContent = formatPrice(total);
+            miniTotal.textContent = formatPrice(total);
+            
+            // Update badge
+            itemCountBadge.textContent = totalItems;
+            itemCountBadge.style.display = 'flex';
+        }
+
+        // Increase quantity
+        function increaseQuantity(itemId, itemName, price) {
+            if (!order[itemId]) {
+                order[itemId] = { name: itemName, price: price, quantity: 0 };
+            }
+            order[itemId].quantity++;
+            document.getElementById(`qty-${itemId}`).textContent = order[itemId].quantity;
+            updateOrderDisplay();
+            
+            // Auto-expand order bar when first item is added
+            if (Object.keys(order).length === 1) {
+                const orderBar = document.getElementById('orderBar');
+                orderBar.classList.remove('collapsed');
+                orderBar.classList.add('expanded');
+            }
+        }
+
+        // Decrease quantity
+        function decreaseQuantity(itemId, itemName, price) {
+            if (order[itemId] && order[itemId].quantity > 0) {
+                order[itemId].quantity--;
+                document.getElementById(`qty-${itemId}`).textContent = order[itemId].quantity || '۰';
+                
+                if (order[itemId].quantity === 0) {
+                    delete order[itemId];
+                }
+                updateOrderDisplay();
+            }
+        }
+
+        // Remove item completely
+        function removeItem(itemId) {
+            if (order[itemId]) {
+                delete order[itemId];
+                document.getElementById(`qty-${itemId}`).textContent = '۰';
+                updateOrderDisplay();
+                
+                // Collapse bar if no items left
+                if (Object.keys(order).length === 0) {
+                    const orderBar = document.getElementById('orderBar');
+                    orderBar.classList.add('collapsed');
+                    orderBar.classList.remove('expanded');
+                }
+            }
+        }
+
+        // Clear entire order
+        function clearOrder() {
+            if (Object.keys(order).length === 0) return;
+            
+            if (confirm('آیا مطمئن هستید که می‌خواهید تمام سفارش خود را حذف کنید؟')) {
+                order = {};
+                // Reset all quantity displays
+                document.querySelectorAll('.qty-display').forEach(display => {
+                    display.textContent = '۰';
+                });
+                updateOrderDisplay();
+                
+                // Collapse the order bar
+                const orderBar = document.getElementById('orderBar');
+                orderBar.classList.add('collapsed');
+                orderBar.classList.remove('expanded');
+            }
+        }
+
+        // Place order
+        function placeOrder() {
+            if (Object.keys(order).length === 0) {
+                alert('لطفاً حداقل یک مورد را برای سفارش انتخاب کنید!');
+                return;
+            }
+
+            // Generate random order number
+            const orderNumber = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('orderNumber').textContent = '#' + orderNumber;
+
+            // Generate order details for modal
+            let detailsHTML = '<div style="text-align: right; margin: 20px 0;">';
+            let total = 0;
+            
+            for (const item of Object.values(order)) {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                detailsHTML += `
+                    <p>${item.name} × ${item.quantity} - ${formatPrice(itemTotal)}</p>
+                `;
+            }
+            
+            detailsHTML += `<p style="font-weight: bold; margin-top: 15px; font-size: 1.2em;">مجموع: ${formatPrice(total)}</p>`;
+            detailsHTML += '</div>';
+            
+            document.getElementById('orderDetails').innerHTML = detailsHTML;
+
+            // Show modal
+            document.getElementById('orderModal').classList.add('active');
+
+            // Clear the order after placing
+            order = {};
+            document.querySelectorAll('.qty-display').forEach(display => {
+                display.textContent = '۰';
+            });
+            updateOrderDisplay();
+            
+            // Collapse the order bar
+            const orderBar = document.getElementById('orderBar');
+            orderBar.classList.add('collapsed');
+            orderBar.classList.remove('expanded');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('orderModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('orderModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize the menu
+        renderMenu();
+        updateOrderDisplay();
+    </script>
+</body>
+</html>
